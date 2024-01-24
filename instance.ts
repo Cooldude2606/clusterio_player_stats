@@ -2,10 +2,16 @@ import * as lib from "@clusterio/lib";
 import { BaseInstancePlugin } from "@clusterio/host";
 import { PluginExampleEvent, PluginExampleRequest } from "./messages";
 
+type PuginExampleIPC = {
+	tick: number,
+	player_name: string,
+};
+
 export class InstancePlugin extends BaseInstancePlugin {
 	async init() {
 		this.instance.handle(PluginExampleEvent, this.handlePluginExampleEvent.bind(this));
 		this.instance.handle(PluginExampleRequest, this.handlePluginExampleRequest.bind(this));
+		this.instance.server.handle("ipc-player_stats-plugin_example_ipc", this.handlePluginExampleIPC.bind(this));
 	}
 
 	async onInstanceConfigFieldChanged(field: string, curr: unknown, prev: unknown) {
@@ -22,6 +28,7 @@ export class InstancePlugin extends BaseInstancePlugin {
 
 	async onPlayerEvent(event: lib.PlayerEvent) {
 		this.logger.info(`onPlayerEvent::onPlayerEvent ${JSON.stringify(event)}`);
+		this.sendRcon("/sc ipc_player_stats.foo()");
 	}
 
 	async handlePluginExampleEvent(event: PluginExampleEvent) {
@@ -34,5 +41,9 @@ export class InstancePlugin extends BaseInstancePlugin {
 			myResponseString: request.myString,
 			myResponseNumbers: request.myNumberArray,
 		};
+	}
+
+	async handlePluginExampleIPC(event: PuginExampleIPC) {
+		this.logger.info(JSON.stringify(event));
 	}
 }

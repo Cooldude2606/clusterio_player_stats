@@ -37,7 +37,7 @@ export const plugin: lib.PluginDeclaration = {
 	controllerEntrypoint: "dist/plugin/controller",
 	instanceEntrypoint: "dist/plugin/instance",
 	
-	controlConfigFields: {
+	controllerConfigFields: {
 		"player_stats.myControllerField": {
 			title: "My Controller Field",
 			description: "This should be removed",
