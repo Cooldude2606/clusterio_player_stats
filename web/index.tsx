@@ -3,7 +3,7 @@ import { Typography } from "antd";
 const { Paragraph } = Typography;
 
 import {
-	BaseWebPlugin, PageLayout, Control, ControlContext, notifyErrorHandler,
+	BaseWebPlugin, PageLayout, Control, ControlContext, notifyErrorHandler, useInstance,
 } from "@clusterio/web_ui";
 
 import * as lib from "@clusterio/lib";
@@ -13,8 +13,8 @@ function useSecondsSince(timestampMs: number) {
 	const [seconds, setSeconds] = useState(Math.floor((Date.now() - timestampMs) / 1000));
 	useEffect(() => {
 		const interval = setInterval(() => {
-			setSeconds(Math.floor(Date.now() - timestampMs) / 1000);
-		});
+			setSeconds(Math.floor((Date.now() - timestampMs) / 1000));
+		}, 1000);
 		return () => {
 			clearInterval(interval);
 		};
@@ -43,11 +43,16 @@ function TrainDeathsPage() {
 	const plugin = control.plugins.get("player_stats") as WebPlugin;
 	const [trainHits, synced] = plugin.usePlayerTrainHits();
 	const [latestTrainHit] = plugin.useLatestTrainHit();
+	const [instance] = useInstance(latestTrainHit?.instanceId);
 
 	return <PageLayout nav={[{ name: "Latest Train Death" }]}>
 		<h2>Latest Train Death</h2>
-		Synced: {String(synced)} Data: {JSON.stringify([...trainHits.values()])}
-		{ latestTrainHit != null ? <TimeSinceComponent timestampMs={latestTrainHit.updatedAtMs}/> : null }
+		<ul>
+		<li>Synced: {String(synced)}</li>
+		<li>Data: {JSON.stringify([...trainHits.values()])}</li>
+		{ latestTrainHit != null ? <li><TimeSinceComponent timestampMs={latestTrainHit.updatedAtMs}/></li> : null }
+		{ instance != undefined ? <li>Accident occurred on server: {instance.name}</li> : null }
+		</ul>
 	</PageLayout>;
 }
 
