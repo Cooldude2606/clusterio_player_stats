@@ -1,49 +1,42 @@
 import * as lib from "@clusterio/lib";
 import { BaseInstancePlugin } from "@clusterio/host";
-import { PluginExampleEvent, PluginExampleRequest } from "./messages";
+import { PlayerHitByTrainEvent, PlayerSessionExportEvent, SessionData } from "./messages";
 
-type PuginExampleIPC = {
-	tick: number,
-	player_name: string,
+type SessionDataIPC = {
+	player_name: string
+	session_data: SessionData
 };
+
+type HitByTrainIPC = {
+	player_name: string
+};
+
+const sessionStatsCounter = new lib.Counter(
+	"clusterio_player_stats_by_instance",
+	"Player Statistics",
+	{ labels: ["instance_id", "statistic"] }
+);
 
 export class InstancePlugin extends BaseInstancePlugin {
 	async init() {
-		this.instance.handle(PluginExampleEvent, this.handlePluginExampleEvent.bind(this));
-		this.instance.handle(PluginExampleRequest, this.handlePluginExampleRequest.bind(this));
-		this.instance.server.handle("ipc-player_stats-plugin_example_ipc", this.handlePluginExampleIPC.bind(this));
+		this.instance.server.on("ipc-player_stats-session_export", (event) => this.handleSessionExportIPC(event).catch(
+			(err) => this.logger.error(`Error handling ipc event:\n${err.stack}`)
+		));
+		this.instance.server.on("ipc-player_stats-train-hit", (event) => this.handleHitByTrainIPC(event).catch(
+			(err) => this.logger.error(`Error handling ipc event:\n${err.stack}`)
+		));
 	}
 
-	async onInstanceConfigFieldChanged(field: string, curr: unknown, prev: unknown) {
-		this.logger.info(`instance::onInstanceConfigFieldChanged ${field}`);
+	async handleSessionExportIPC(event: SessionDataIPC) {
+		this.instance.sendTo("controller", new PlayerSessionExportEvent(event.player_name, event.session_data));
+
+		const instanceId = String(this.instance.id);
+		for (let [statistic, delta] of Object.entries(event.session_data)) {
+			sessionStatsCounter.labels(instanceId, statistic).inc(delta);
+		}
 	}
 
-	async onStart() {
-		this.logger.info("instance::onStart");
-	}
-
-	async onStop() {
-		this.logger.info("instance::onStop");
-	}
-
-	async onPlayerEvent(event: lib.PlayerEvent) {
-		this.logger.info(`onPlayerEvent::onPlayerEvent ${JSON.stringify(event)}`);
-		this.sendRcon("/sc ipc_player_stats.foo()");
-	}
-
-	async handlePluginExampleEvent(event: PluginExampleEvent) {
-		this.logger.info(JSON.stringify(event));
-	}
-
-	async handlePluginExampleRequest(request: PluginExampleRequest) {
-		this.logger.info(JSON.stringify(request));
-		return {
-			myResponseString: request.myString,
-			myResponseNumbers: request.myNumberArray,
-		};
-	}
-
-	async handlePluginExampleIPC(event: PuginExampleIPC) {
-		this.logger.info(JSON.stringify(event));
+	async handleHitByTrainIPC(event: HitByTrainIPC) {
+		this.instance.send(new PlayerHitByTrainEvent(event.player_name));
 	}
 }

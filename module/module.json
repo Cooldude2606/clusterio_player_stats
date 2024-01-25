@@ -2,11 +2,5 @@
 	"name": "player_stats",
 	"load": [
 		"control.lua"
-	],
-	"require": [
-		"module_exports.lua"
-	],
-	"dependencies": [
-
 	]
 }

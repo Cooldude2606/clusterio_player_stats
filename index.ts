@@ -1,61 +1,45 @@
 import * as lib from "@clusterio/lib";
 
-import { PluginExampleEvent, PluginExampleRequest } from "./messages";
+import * as Messages from "./messages";
 
 lib.definePermission({
-	name: "player_stats.example.permission.event",
-	title: "Example permission event",
-	description: "My plugin's example permission that I forgot to remove",
+	name: "player_stats.main_page.view",
+	title: "View player statistics",
+	description: "View the cluster statistics of all players",
 });
 
 lib.definePermission({
-	name: "player_stats.example.permission.request",
-	title: "Example permission request",
-	description: "My plugin's example permission that I forgot to remove",
+	name: "player_stats.main_page.subscribe",
+	title: "View player statistics",
+	description: "View the cluster statistics of all players",
 });
 
 lib.definePermission({
-	name: "player_stats.page.view",
-	title: "Example page view permission",
-	description: "My plugin's example page permission that I forgot to remove",
+	name: "player_stats.train_hit.view",
+	title: "View last train hit",
+	description: "View when someone was last hit by a train on the cluster",
 });
 
-declare module "@clusterio/lib" {
-	export interface ControllerConfigFields {
-		"player_stats.myControllerField": string;
-	}
-	export interface InstanceConfigFields {
-		"player_stats.myInstanceField": string;
-	}
-}
+lib.definePermission({
+	name: "player_stats.train_hit.subscribe",
+	title: "View last train hit",
+	description: "View when someone was last hit by a train on the cluster",
+});
 
 export const plugin: lib.PluginDeclaration = {
 	name: "player_stats",
-	title: "player_stats",
-	description: "I didn't update my description",
+	title: "Player Statistics",
+	description: "Collect statistics from in game events for all players",
 	webEntrypoint: "./web",
 	controllerEntrypoint: "dist/plugin/controller",
 	instanceEntrypoint: "dist/plugin/instance",
-	
-	controllerConfigFields: {
-		"player_stats.myControllerField": {
-			title: "My Controller Field",
-			description: "This should be removed",
-			type: "string",
-			initialValue: "Remove Me",
-		},
-	},
-	instanceConfigFields: {
-		"player_stats.myInstanceField": {
-			title: "My Instance Field",
-			description: "This should be removed",
-			type: "string",
-			initialValue: "Remove Me",
-		},
-	},
+
+	routes: ["/player_stats"],
 
 	messages: [
-		PluginExampleEvent,
-		PluginExampleRequest,
+		Messages.PlayerSessionExportEvent,
+		Messages.PlayerSessionUpdateEvent,
+		Messages.PlayerHitByTrainEvent,
+		Messages.PlayerTrainHitUpdateEvent,
 	],
 };
