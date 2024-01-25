@@ -117,7 +117,7 @@ PlayerStats.events[defines.events.on_entity_damaged] = function(event)
 		if not player.valid or not player.connected then return end
 
 		increment(player.index, "HitByTrain")
-		clusterio_api.send_json("player_stats-session_export", {
+		clusterio_api.send_json("player_stats-train-hit", {
 			player_name = player.name
 		})
 
@@ -133,7 +133,7 @@ PlayerStats.events[defines.events.on_entity_damaged] = function(event)
 end
 
 --- When a player kills something increment their counter
-PlayerStats.events[defines.events.on_entity_damaged] = function(event)
+PlayerStats.events[defines.events.on_entity_died] = function(event)
 	local character = event.cause
 	if not character or not character.valid or character.type ~= "character" then return end
 

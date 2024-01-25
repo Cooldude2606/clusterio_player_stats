@@ -16,7 +16,18 @@ function PlayerStatsPage() {
 
 	return <PageLayout nav={[{ name: "Player Stats" }]}>
 		<h2>Player Stats</h2>
-		Synced: {String(synced)} Data: {JSON.stringify([...sessions.entries()])}
+		Synced: {String(synced)} Data: {JSON.stringify([...sessions.values()])}
+	</PageLayout>;
+}
+
+function TrainDeathsPage() {
+	const control = useContext(ControlContext);
+	const plugin = control.plugins.get("player_stats") as WebPlugin;
+	const [trainHits, synced] = plugin.usePlayerTrainHits();
+
+	return <PageLayout nav={[{ name: "Latest Train Death" }]}>
+		<h2>Latest Train Death</h2>
+		Synced: {String(synced)} Data: {JSON.stringify([...trainHits.values()])}
 	</PageLayout>;
 }
 
@@ -31,6 +42,12 @@ export class WebPlugin extends BaseWebPlugin {
 				sidebarName: "Player Stats",
 				permission: "player_stats.main_page.view",
 				content: <PlayerStatsPage/>,
+			},
+			{
+				path: "/train_hits",
+				sidebarName: "Train Hits",
+				permission: "player_stats.train_hit.view",
+				content: <TrainDeathsPage/>,
 			},
 		];
 	}
@@ -47,12 +64,12 @@ export class WebPlugin extends BaseWebPlugin {
 	}
 
 	usePlayerTrainHits() {
-		const subscribe = useCallback((callback: () => void) => this.playerSessions.subscribe(callback), []);
-		return useSyncExternalStore(subscribe, () => this.playerSessions.getSnapshot());
+		const subscribe = useCallback((callback: () => void) => this.playerTrainHits.subscribe(callback), []);
+		return useSyncExternalStore(subscribe, () => this.playerTrainHits.getSnapshot());
 	}
 
 	useLatestTrainHit() {
-		const [sessions, synced] = this.usePlayerSessions();
+		const [sessions, synced] = this.usePlayerTrainHits();
 		const latest = [...sessions.values()].reduce(
 			(candidate, next) => next.updatedAtMs > candidate.updatedAtMs ? next : candidate
 		)

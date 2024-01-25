@@ -34,7 +34,10 @@ export const plugin: lib.PluginDeclaration = {
 	controllerEntrypoint: "dist/plugin/controller",
 	instanceEntrypoint: "dist/plugin/instance",
 
-	routes: ["/player_stats"],
+	routes: [
+		"/player_stats",
+		"/train_hits",
+	],
 
 	messages: [
 		Messages.PlayerSessionExportEvent,

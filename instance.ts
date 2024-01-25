@@ -37,6 +37,6 @@ export class InstancePlugin extends BaseInstancePlugin {
 	}
 
 	async handleHitByTrainIPC(event: HitByTrainIPC) {
-		this.instance.send(new PlayerHitByTrainEvent(event.player_name));
+		this.instance.sendTo("controller", new PlayerHitByTrainEvent(event.player_name));
 	}
 }

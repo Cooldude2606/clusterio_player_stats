@@ -15,7 +15,7 @@ export class ControllerPlugin extends BaseControllerPlugin {
 
 	async init() {
 		this.controller.handle(PlayerSessionExportEvent, this.handlePlayerSessionExportEvent.bind(this));
-		this.controller.handle(PlayerHitByTrainEvent, this.handlePlayerSessionExportEvent.bind(this));
+		this.controller.handle(PlayerHitByTrainEvent, this.handlePlayerHitByTrainEvent.bind(this));
 		this.controller.subscriptions.handle(PlayerSessionUpdateEvent, this.handlePlayerSessionSubscription.bind(this));
 		this.controller.subscriptions.handle(PlayerTrainHitUpdateEvent, this.handlePlayerTrainHitSubscription.bind(this));
 		this.playerDatabase = await DictionaryDatabase.load(this.controller.config, this.logger, "player_stats.json") as DictionaryDatabase<PlayerSession>;
