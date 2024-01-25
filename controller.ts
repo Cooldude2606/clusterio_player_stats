@@ -58,8 +58,8 @@ export class ControllerPlugin extends BaseControllerPlugin {
 		return sessions.length ? new PlayerSessionUpdateEvent(sessions) : null;
 	}
 
-	async handlePlayerHitByTrainEvent(event: PlayerHitByTrainEvent) {
-		this.lastTrainHit = new PlayerTrainHit(event.playerName, Date.now(), false);
+	async handlePlayerHitByTrainEvent(event: PlayerHitByTrainEvent, src: lib.Address) {
+		this.lastTrainHit = new PlayerTrainHit(event.playerName, src.id, Date.now(), false);
 		this.controller.subscriptions.broadcast(new PlayerTrainHitUpdateEvent([this.lastTrainHit]));
 	}
 

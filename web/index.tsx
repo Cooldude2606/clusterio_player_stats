@@ -7,8 +7,21 @@ import {
 } from "@clusterio/web_ui";
 
 import * as lib from "@clusterio/lib";
-import { PlayerSessionUpdateEvent, PlayerTrainHit, PlayerTrainHitUpdateEvent } from "../messages";
+import { PlayerSessionUpdateEvent, PlayerTrainHitUpdateEvent } from "../messages";
 
+function useSecondsSince(timestampMs: number) {
+	const [seconds, setSeconds] = useState(Math.floor((Date.now() - timestampMs) / 1000));
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setSeconds(Math.floor(Date.now() - timestampMs) / 1000);
+		});
+		return () => {
+			clearInterval(interval);
+		};
+	}, [timestampMs]);
+	return seconds;
+}
+  
 function PlayerStatsPage() {
 	const control = useContext(ControlContext);
 	const plugin = control.plugins.get("player_stats") as WebPlugin;
@@ -20,14 +33,21 @@ function PlayerStatsPage() {
 	</PageLayout>;
 }
 
+function TimeSinceComponent(props: { timestampMs: number }) {
+	const seconds = useSecondsSince(props.timestampMs);
+	return <>Seconds since someone was last hit: {seconds}</>;
+  }
+
 function TrainDeathsPage() {
 	const control = useContext(ControlContext);
 	const plugin = control.plugins.get("player_stats") as WebPlugin;
 	const [trainHits, synced] = plugin.usePlayerTrainHits();
+	const [latestTrainHit] = plugin.useLatestTrainHit();
 
 	return <PageLayout nav={[{ name: "Latest Train Death" }]}>
 		<h2>Latest Train Death</h2>
 		Synced: {String(synced)} Data: {JSON.stringify([...trainHits.values()])}
+		{ latestTrainHit != null ? <TimeSinceComponent timestampMs={latestTrainHit.updatedAtMs}/> : null }
 	</PageLayout>;
 }
 
@@ -69,8 +89,11 @@ export class WebPlugin extends BaseWebPlugin {
 	}
 
 	useLatestTrainHit() {
-		const [sessions, synced] = this.usePlayerTrainHits();
-		const latest = [...sessions.values()].reduce(
+		const [trainHits, synced] = this.usePlayerTrainHits();
+		if (trainHits.size === 0) {
+			return [null, synced] as const;
+		}
+		const latest = [...trainHits.values()].reduce(
 			(candidate, next) => next.updatedAtMs > candidate.updatedAtMs ? next : candidate
 		)
 		return [latest, synced] as const;

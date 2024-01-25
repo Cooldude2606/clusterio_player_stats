@@ -94,6 +94,7 @@ export class PlayerSessionExportEvent {
 export class PlayerTrainHit {
 	constructor(
 		public id: string,
+		public instanceId: number,
 		public updatedAtMs: number,
 		public isDeleted: boolean,
 	) {
@@ -101,12 +102,13 @@ export class PlayerTrainHit {
 
 	static jsonSchema = Type.Object({
 		id: Type.String(),
+		instanceId: Type.Number(),
 		updatedAtMs: Type.Number(),
 		isDeleted: Type.Boolean(),
 	});
 
 	static fromJSON(json: Static<typeof this.jsonSchema>) {
-		return new this(json.id, json.updatedAtMs, json.isDeleted);
+		return new this(json.id, json.instanceId, json.updatedAtMs, json.isDeleted);
 	}
 }
 
