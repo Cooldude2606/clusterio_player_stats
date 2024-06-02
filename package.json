@@ -10,7 +10,7 @@
 		"node": ">=18"
 	},
 	"peerDependencies": {
-		"@clusterio/lib": "^2.0.0-alpha.14"
+		"@clusterio/lib": "workspace:^"
 	},
 	"devDependencies": {
 		"@types/fs-extra": "^11.0.1",
@@ -23,8 +23,8 @@
 		"webpack": "^5.88.2",
 		"webpack-cli": "^5.1.4",
 		"webpack-merge": "^5.9.0",
-		"@clusterio/web_ui": "^2.0.0-alpha.14",
-		"@clusterio/lib": "^2.0.0-alpha.14"
+		"@clusterio/web_ui": "workspace:^",
+		"@clusterio/lib": "workspace:^"
 	},
 	"dependencies": {
 		"@sinclair/typebox": "^0.30.4",

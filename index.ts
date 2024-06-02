@@ -1,5 +1,4 @@
 import * as lib from "@clusterio/lib";
-
 import * as Messages from "./messages";
 
 lib.definePermission({
